@@ -90,10 +90,8 @@ export default function DestinationsPage() {
                                 <DropdownMenuTrigger asChild>
                                     <button className="rounded-full mt-1 outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-transform hover:scale-105 shrink-0">
                                         <Avatar className="h-11 w-11 border-2 border-slate-100 shadow-sm">
-                                            {/* <AvatarImage src="/assets/tra.jpg" /> */}
                                             <AvatarImage className="object-cover" src="/assets/Tourist.jpg" />
                                             <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
-                                                {/* {user?.name ? user.name.charAt(0).toUpperCase() : "V"} */}
                                             </AvatarFallback>
                                         </Avatar>
                                     </button>
@@ -122,7 +120,7 @@ export default function DestinationsPage() {
                                         onSelect={() => setShowLogoutAlert(true)}
                                         className="rounded-lg cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 py-2"
                                     >
-                                        <LogOut className="h-4 w-4 mr-2" /> 
+                                        <LogOut className="h-4 w-4" /> 
                                         <span>Se déconnecter</span>
                                     </DropdownMenuItem>
                                     

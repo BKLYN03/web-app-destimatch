@@ -46,6 +46,7 @@ export function UserRegisterForm({ className, ...props }: React.ComponentProps<"
         country_code: selectedCountry?.code || "",
         continent: selectedCountry?.continent || ""
       };
+      
       const data = await register(name, email, password, location);
       console.log(data.token);
 

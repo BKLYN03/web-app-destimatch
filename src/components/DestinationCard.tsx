@@ -75,6 +75,7 @@ export default function DestinationCard(props: Destination) {
             </Button>
         </Link>
       </CardFooter>
+      
     </Card>
   );
 }

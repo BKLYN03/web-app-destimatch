@@ -145,7 +145,7 @@ export default function HomePage() {
                                     <DropdownMenuSeparator />
                                     
                                     <DropdownMenuItem asChild className="rounded-lg cursor-pointer py-2">
-                                        <Link href="/profile/update-preferences" className="flex items-center gap-2">
+                                        <Link href="/profile" className="flex items-center gap-2">
                                             <Settings className="h-4 w-4 text-slate-500" /> 
                                             <span>Mon profil</span>
                                         </Link>
@@ -157,7 +157,7 @@ export default function HomePage() {
                                         onSelect={() => setShowLogoutAlert(true)}
                                         className="rounded-lg cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 py-2"
                                     >
-                                        <LogOut className="h-4 w-4 mr-2" /> 
+                                        <LogOut className="h-4 w-4" /> 
                                         <span>Se déconnecter</span>
                                     </DropdownMenuItem>
                                     
