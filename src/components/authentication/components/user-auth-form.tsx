@@ -29,7 +29,7 @@ export function UserAuthForm({ className, ...props }: React.ComponentProps<"div"
       const data = await login(email, password);
       console.log(data.token);
 
-      router.push("/home");
+      router.replace("/home");
     } catch (err) {
       console.error("Erreur détectée:", err);
       if (err instanceof Error) {
@@ -53,7 +53,7 @@ export function UserAuthForm({ className, ...props }: React.ComponentProps<"div"
                 <AlertCircleIcon />
                 <AlertTitle>Erreur de connexion</AlertTitle>
                 <AlertDescription>
-                    ${error}
+                    {error}
                 </AlertDescription>
             </Alert>
             </div>
