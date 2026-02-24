@@ -52,6 +52,17 @@ export async function getDestinationById(id: string): Promise<Destination> {
   return res.json();
 }
 
+export async function getDestinationsOnPageIdx(idx: number): Promise<Destination[]> {
+  const res = await fetch(`${DEST_API_URL}?page=${idx}`, {
+      cache: "no-store" 
+  });
+
+  if (!res.ok)
+    throw new Error('Erreur lors du chargement');
+
+  return res.json();
+} 
+
 export async function searchDestinations(searchParams: SearchParams) {
   const params = new URLSearchParams();
     

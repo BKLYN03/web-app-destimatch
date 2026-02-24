@@ -32,12 +32,12 @@ export default function DestinationDetailsPage() {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [rating, setRating] = useState(5);
+    const [rating, setRating] = useState(1);
     const [reviewContent, setReviewContent] = useState("");
 
     const handleSubmitReview = () => {
         console.log("Avis à envoyer :", { rating, content: reviewContent });
-        // Ici tu appelleras ton API Quarkus plus tard !
+        // 
     };
 
     useEffect(() => {

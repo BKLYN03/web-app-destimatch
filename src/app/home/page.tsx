@@ -2,10 +2,9 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { User } from "@/models/user";
-import { DestinationMatch, getMatchingDestinations } from "@/services/destination-service";
-import { Loader2, Search, SlidersHorizontal, Star, Heart, MapPin, Wand2 } from "lucide-react";
+import getAllDestinations, { DestinationMatch, getMatchingDestinations } from "@/services/destination-service";
+import { Loader2, Star, Heart, MapPin, Wand2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,10 +29,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Destination } from "@/models/destination";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
 
-    const [matchedDestinations, setDestinations] = useState<DestinationMatch[]>([]);
+    const route = useRouter();
+
+    const [matchedDestinations, setMatchedDestinations] = useState<DestinationMatch[]>([]);
+    const [destinations, setDestinations] = useState<Destination[]>([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [showLogoutAlert, setShowLogoutAlert] = useState(false);
@@ -64,6 +68,13 @@ export default function HomePage() {
 
     useEffect(() => {
         getMatchingDestinations()
+            .then(data => {
+                setMatchedDestinations(data);
+            })
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
+
+        getAllDestinations()
             .then(data => {
                 setDestinations(data);
             })
@@ -104,47 +115,10 @@ export default function HomePage() {
                             
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-full border border-slate-200 mb-3">
-                                    <div className="relative flex-1 md:w-64">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <Input 
-                                            className="border-0 bg-transparent pl-9 focus-visible:ring-0 placeholder:text-slate-400 h-9 shadow-none" 
-                                            placeholder="Où veux-tu aller ?" 
-                                        />
-                                    </div>
-                                    <Button size="sm" variant="ghost" className="rounded-full h-9 w-9 p-0 hover:bg-white hover:shadow-sm">
-                                        <SlidersHorizontal className="h-4 w-4 text-slate-600" />
-                                    </Button>
-                                    <Button size="sm" className="rounded-full px-6 h-9">
-                                        Chercher
+                                    <Button onClick={() => route.push("/destinations/search")} size="sm" className="rounded-full px-6 h-9">
+                                        Recherche...
                                     </Button>
                                 </div>
-                                
-                                {/* <div className="flex flex-wrap justify-end gap-2">
-                                    {user?.travel_style && (
-                                        <Badge variant="outline" className="bg-white text-slate-600 rounded-full font-normal">
-                                            <Link href={`/destinations/search?style=${user.travel_style}`}>🎒 Style {user.travel_style}</Link>
-                                        </Badge>
-                                    )}
-                                    {user?.budget_level && (
-                                        <Badge variant="outline" className="bg-white text-slate-600 rounded-full font-normal">
-                                            <Link href={`/destinations/search?budget=${user.budget_level}`}>💰 Budget {user.budget_level}</Link>
-                                        </Badge>
-                                    )}
-                                    {user?.preferences?.[0] && (
-                                        <Badge variant="outline" className="bg-white text-slate-600 rounded-full font-normal">🌿 {user.preferences[0]}</Badge>
-                                    )}
-
-                                    <Link href="/profile/update-preferences">
-                                        <Button 
-                                            variant="outline" 
-                                            size="icon"
-                                            className="bg-white h-6 w-6 text-slate-600 rounded-full font-normal shadow-none hover:text-primary hover:bg-slate-50"
-                                            title="Modifier mes préférences"
-                                        >
-                                            <PenIcon className="h-3.5 w-3.5" /> 
-                                        </Button>
-                                    </Link>
-                                </div> */}
                             </div>
 
                             <DropdownMenu>
@@ -278,10 +252,25 @@ export default function HomePage() {
                                         </h3>
                                         <div className="flex items-center gap-1.5 text-gray-200 mb-4 font-medium drop-shadow-md">
                                             <MapPin className="h-4 w-4" />
-                                            {topMatch.location?.city}, {topMatch.location?.country} <span></span>
+                                            {topMatch.location?.city}, {topMatch.location?.country}
                                             <Link href={`/destinations/search?continent=${topMatch.location.continent}`}>
                                                 <div className="bg-white/70 rounded-xl hover:bg-white/80 text-white border-white/30 backdrop-blur-sm px-2 pb-1 pt-1 text-xs">
-                                                    <span style={{ color: "black" }}>🌍{topMatch.location.continent}</span>
+                                                    {topMatch.location.continent === "Afrique" && (
+                                                        <span style={{ color: "black" }}>🌍{topMatch.location.continent}</span>
+                                                    )}
+                                                    {(topMatch.location.continent === "Asie" || topMatch.location.continent === "Moyen-Orient" 
+                                                        || topMatch.location.continent === "Océanie") && (
+                                                        <span style={{ color: "black" }}>🌏{topMatch.location.continent}</span>
+                                                    )}
+                                                    {topMatch.location.continent === "Amérique du Sud" && (
+                                                        <span style={{ color: "black" }}>🌎{topMatch.location.continent}</span>
+                                                    )}
+                                                    {topMatch.location.continent === "Amérique du Nord" && (
+                                                        <span style={{ color: "black" }}>🌎{topMatch.location.continent}</span>
+                                                    )}
+                                                    {topMatch.location.continent === "Europe" && (
+                                                        <span style={{ color: "black" }}>🌍{topMatch.location.continent}</span>
+                                                    )}
                                                 </div>
                                             </Link>
                                         </div>
@@ -289,7 +278,7 @@ export default function HomePage() {
                                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-6">
                                             <div className="flex flex-wrap gap-2">
                                                 {topMatch.official_tags?.slice(0, 4).map((tag: string) => (
-                                                    <Badge key={tag} className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm px-3 pb-2 pt-1.5 text-xs">
+                                                    <Badge key={tag} className="bg-white/20 hover:bg-white/60 text-white border-white/30 backdrop-blur-sm px-3 pb-2 pt-1.5 text-xs">
                                                         <Link href={`/destinations/search?tag=${tag}`}>{tag}</Link>
                                                     </Badge>
                                                 ))}
@@ -311,7 +300,7 @@ export default function HomePage() {
                             </section>
                         ) : null}
 
-                        {otherMatches.length > 0 && (
+                        {/* {otherMatches.length > 0 && (
                             <section className="mb-14">
                                 <div className="flex items-end justify-between mb-6">
                                     <div>
@@ -329,7 +318,25 @@ export default function HomePage() {
                                     ))}
                                 </div>
                             </section>
-                        )}
+                        )} */}
+
+                        <section className="mb-14">
+                            <div className="flex items-end justify-between mb-6">
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-800">Nos destinations</h2>
+                                    <p className="text-sm text-slate-500">Découvrez plus de nos destinations.</p>
+                                </div>
+                                <Link href="/destinations" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                                    Tout voir →
+                                </Link>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {destinations.slice(1, 5).map((match) => (
+                                    <DestinationCard key={match.id} {...match} />
+                                ))}
+                            </div>
+                        </section>
 
                         {inspirationMatches.length > 0 && (
                             <section className="mb-10">
