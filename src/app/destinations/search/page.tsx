@@ -27,6 +27,7 @@ import {
   PaginationPrevious,
   PaginationEllipsis
 } from "@/components/ui/pagination";
+import DGoogleMap from "@/components/DGoogleMap";
 // import dynamic from "next/dynamic";
 
 const CONTINENTS = ["Asie", "Europe", "Afrique", "Amérique du Nord", "Amérique du Sud", "Océanie"];
@@ -349,19 +350,19 @@ export default function SearchPage() {
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-slate-100 rounded-3xl h-[600px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 mb-8 relative overflow-hidden group">
-                                            <div className="absolute inset-0 bg-[url('https://assets.website-files.com/5e832e12eb7ca02ee9064d42/5f7db426b676b94d55b3444c_map-placeholder.jpg')] bg-cover opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                                            <div className="z-10 bg-white p-8 rounded-2xl shadow-xl text-center max-w-md">
-                                                <Map className="h-12 w-12 text-primary mx-auto mb-4" />
-                                                <h3 className="text-xl font-bold text-slate-900 mb-2">Vue Carte Interactive</h3>
-                                                <p className="text-slate-500">Bientôt disponible ! Vous pourrez voir vos destinations favorites sur une carte.</p>
-                                                <Button className="mt-6" variant="outline" onClick={() => setViewMode("grid")}>Retour à la liste</Button>
-                                            </div>
-                                        </div>
-
-                                        // <div className="h-[600px] rounded-3xl overflow-hidden border border-slate-200 shadow-sm mb-8 relative z-0">
-                                        //     <MapView destinations={processedResults} />
+                                        // <div className="bg-slate-100 rounded-3xl h-[600px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 mb-8 relative overflow-hidden group">
+                                        //     <div className="absolute inset-0 bg-[url('https://assets.website-files.com/5e832e12eb7ca02ee9064d42/5f7db426b676b94d55b3444c_map-placeholder.jpg')] bg-cover opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                                        //     <div className="z-10 bg-white p-8 rounded-2xl shadow-xl text-center max-w-md">
+                                        //         <Map className="h-12 w-12 text-primary mx-auto mb-4" />
+                                        //         <h3 className="text-xl font-bold text-slate-900 mb-2">Vue Carte Interactive</h3>
+                                        //         <p className="text-slate-500">Bientôt disponible! Vous pourrez voir vos destinations favorites sur une carte.</p>
+                                        //         <Button className="mt-6" variant="outline" onClick={() => setViewMode("grid")}>Retour à la liste</Button>
+                                        //     </div>
                                         // </div>
+
+                                        <div className="h-[600px] rounded-3xl overflow-hidden border border-slate-200 shadow-sm mb-8 relative z-0">
+                                            <DGoogleMap destinations={processedResults} />
+                                        </div>
                                     )}
 
                                     {viewMode === "grid" && totalPages > 1 && (
