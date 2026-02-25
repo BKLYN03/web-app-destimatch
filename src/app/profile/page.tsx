@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { User } from "@/models/user";
-import { MapPin, Edit, Heart, Settings, LogOut, Plane, Globe, Tag, History, Trophy, ArrowRight, Home } from "lucide-react";
+import { MapPin, Edit, Heart, Settings, LogOut, Plane, Globe, Tag, History, Trophy, ArrowRight, Home, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getUserFavorites } from "@/services/favorite-service";
 
 const STYLES_INFO: Record<string, { icon: string, label: string }> = {
     'SOLO': { icon: '🎒', label: 'Solo' },
@@ -33,6 +34,9 @@ export default function ProfilePage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [history, setHistory] = useState<any[]>([]);
     const [completion, setCompletion] = useState(0);
+
+    const [wishlist, setWishlist] = useState<any[]>([]);
+    const [loadingWishlist, setLoadingWishlist] = useState(true);
     
     const calculateLevel = (u: User) => {
         let score = 0;
@@ -65,6 +69,20 @@ export default function ProfilePage() {
                 setHistory([]);
             }
         }
+    }, []);
+
+    useEffect(() => {
+        const loadWishlist = async () => {
+            try {
+                const data = await getUserFavorites();
+                setWishlist(data); 
+            } catch (e) {
+                console.error("Erreur chargement wishlist", e);
+            } finally {
+                setLoadingWishlist(false);
+            }
+        };
+        loadWishlist();
     }, []);
 
     const handleLogout = () => {
@@ -300,17 +318,75 @@ export default function ProfilePage() {
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="wishlist">
-                        <Card>
-                            <CardContent className="p-12 text-center flex flex-col items-center">
-                                <div className="bg-pink-50 p-4 rounded-full mb-4">
-                                    <Heart className="h-8 w-8 text-pink-500" />
+                    <TabsContent value="wishlist" className="space-y-6 animate-in fade-in-50">
+                        <Card className="border-none shadow-none bg-transparent">
+                            <CardContent className="p-0">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <div className="bg-red-50 p-2 rounded-full">
+                                        <Heart className="h-5 w-5 text-red-500 fill-red-500" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-900">
+                                        Mes Coups de Cœur <span className="text-slate-400 text-sm font-normal">({wishlist.length})</span>
+                                    </h3>
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-2">Vos favoris</h3>
-                                <p className="text-slate-500 mb-6">
-                                    Bientôt disponible : Retrouvez vos coups de cœur ici.
-                                </p>
-                                <Button onClick={() => router.push('/destinations/search')}>Explorer la carte</Button>
+
+                                {loadingWishlist ? (
+                                    <div className="text-center py-20 text-slate-400 animate-pulse">
+                                        Chargement de vos rêves...
+                                    </div>
+                                ) : wishlist.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {wishlist.map((dest) => (
+                                            <div 
+                                                key={dest.id} 
+                                                className="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                                            >
+                                                <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                                                    <Image 
+                                                        src={dest.images?.[0] || "/assets/placeholder.jpg"} 
+                                                        alt={dest.name}
+                                                        fill
+                                                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                                    />
+                                                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1">
+                                                        <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" /> 
+                                                        {dest.rating}
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-4">
+                                                    <h4 className="font-bold text-slate-900 text-lg truncate mb-1">{dest.name}</h4>
+                                                    <div className="flex items-center text-slate-500 text-sm mb-3">
+                                                        <MapPin className="h-3.5 w-3.5 mr-1 text-primary" />
+                                                        <span className="truncate">{dest.location?.city}, {dest.location?.country}</span>
+                                                    </div>
+                                                    
+                                                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                                                        <span className="text-xs font-medium text-slate-600 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                            {dest.average_daily_cost}€ / jour
+                                                        </span>
+                                                        <Button variant="ghost" size="sm" className="h-8 text-xs text-primary hover:text-primary hover:bg-primary/5">
+                                                            Détails
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                                        <div className="bg-slate-50 p-4 rounded-full inline-flex mb-4">
+                                            <Heart className="h-8 w-8 text-slate-300" />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-slate-900 mb-2">Votre liste est vide</h3>
+                                        <p className="text-slate-500 mb-6 max-w-sm mx-auto">
+                                            Vous n'avez pas encore ajouté de destination. Explorez notre carte pour trouver l'inspiration !
+                                        </p>
+                                        <Button onClick={() => router.push('/destinations/search')}>
+                                            Explorer les destinations
+                                        </Button>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </TabsContent>

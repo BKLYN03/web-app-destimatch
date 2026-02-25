@@ -4,10 +4,63 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Destination } from "@/models/destination";
-import { Heart, Star, MapPin } from "lucide-react";
+import { Heart, Star, MapPin, Share2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getUserFavorites, removeFromFavorites, addToFavorites } from "@/services/favorite-service";
+import { toast } from "sonner";
 
 export default function DestinationCard(props: Destination) {
   const displayedTags = props.official_tags?.slice(0, 3) || [];
+
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
+
+  useEffect(() => {
+      const checkFavoriteStatus = async () => {
+          const token = localStorage.getItem("destimatch_token");
+          if (!token) return;
+
+          try {
+              const favorites = await getUserFavorites();
+              const isFav = favorites.some((fav: any) => fav.id === props.id);
+              
+              setIsFavorite(isFav);
+          } catch (err) {
+              console.error("Erreur check favoris", err);
+          }
+      };
+      checkFavoriteStatus();
+  }, [props.id]);
+
+  const handleToggleFavorite = async () => {
+      const token = localStorage.getItem("destimatch_token");
+      if (!token) {
+          toast.error("Connectez-vous pour ajouter aux favoris !");
+          return;
+      }
+
+      if (favLoading) return;
+
+      const previousState = isFavorite;
+      
+      setIsFavorite(!isFavorite);
+      setFavLoading(true);
+
+      try {
+          if (previousState) {
+              await removeFromFavorites(props.id);
+              toast.success("Retiré des favoris", { position: "top-center" });
+          } else {
+              await addToFavorites(props.id);
+              toast.success("Ajouté aux favoris ❤️", { position: "top-center" });
+          }
+      } catch (error) {
+          setIsFavorite(previousState);
+          toast.error("Erreur lors de la mise à jour");
+      } finally {
+          setFavLoading(false);
+      }
+  };
 
   return (
     <Card className="group relative overflow-hidden rounded-xl border-0 bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 h-full flex flex-col w-full p-0">
@@ -22,7 +75,7 @@ export default function DestinationCard(props: Destination) {
         </div>
 
         <button className="absolute right-3 top-3 z-20 rounded-full bg-white/50 p-2 text-white transition-colors hover:bg-white hover:text-red-500 backdrop-blur-md">
-            <Heart className="h-4 w-4" />
+            <Heart onClick={handleToggleFavorite} className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
         </button>
 
         <Image
@@ -71,7 +124,7 @@ export default function DestinationCard(props: Destination) {
         
         <Link href={`/destinations/${props.id}`}>
             <Button size="sm" className="h-9 rounded-full px-5 text-sm font-semibold shadow-sm">
-                Explorer
+                Détails
             </Button>
         </Link>
       </CardFooter>

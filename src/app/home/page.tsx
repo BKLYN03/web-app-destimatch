@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Destination } from "@/models/destination";
 import { useRouter } from "next/navigation";
+import { getUserFavorites, removeFromFavorites, addToFavorites } from "@/services/favorite-service";
+import { toast } from "sonner";
 
 export default function HomePage() {
 
@@ -41,6 +43,60 @@ export default function HomePage() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
+
+    const topMatch = matchedDestinations.length > 0 ? matchedDestinations[0] : null;
+    const otherMatches = matchedDestinations.slice(1, 5);
+    const inspirationMatches = matchedDestinations.slice(5, 9);
+
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            const token = localStorage.getItem("destimatch_token");
+            if (!token) return;
+
+            try {
+                const favorites = await getUserFavorites();
+                const isFav = favorites.some((fav: any) => fav.id === topMatch?.id);
+                
+                setIsFavorite(isFav);
+            } catch (err) {
+                console.error("Erreur check favoris", err);
+            }
+        };
+        checkFavoriteStatus();
+    }, [topMatch?.id]);
+
+    const handleToggleFavorite = async () => {
+        const token = localStorage.getItem("destimatch_token");
+        if (!token) {
+            toast.error("Connectez-vous pour ajouter aux favoris !");
+            return;
+        }
+
+        if (favLoading) return;
+
+        const previousState = isFavorite;
+        
+        setIsFavorite(!isFavorite);
+        setFavLoading(true);
+
+        try {
+            if (previousState) {
+                await removeFromFavorites(topMatch!.id);
+                toast.success("Retiré des favoris", { position: "top-center" });
+            } else {
+                await addToFavorites(topMatch!.id);
+                toast.success("Ajouté aux favoris ❤️", { position: "top-center" });
+            }
+        } catch (error) {
+            setIsFavorite(previousState);
+            toast.error("Erreur lors de la mise à jour");
+        } finally {
+            setFavLoading(false);
+        }
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -81,10 +137,6 @@ export default function HomePage() {
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
     }, []);
-
-    const topMatch = matchedDestinations.length > 0 ? matchedDestinations[0] : null;
-    const otherMatches = matchedDestinations.slice(1, 5);
-    const inspirationMatches = matchedDestinations.slice(5, 9);
 
     const hasMatchingCriteria = Boolean(user?.travel_style || user?.budget_level || (user?.preferences && user.preferences.length > 0));
 
@@ -239,8 +291,15 @@ export default function HomePage() {
                                             {topMatch.rating || "N/A"}
                                         </Badge>
                                     </div>
-                                    <button className="absolute right-4 top-4 z-20 rounded-full bg-white/30 p-2.5 text-white transition-colors hover:bg-white hover:text-red-500 backdrop-blur-md">
-                                        <Heart className="h-5 w-5" />
+                                    <button
+                                        onClick={handleToggleFavorite}
+                                        className={`rounded-full shadow-lg transition-all duration-300 ${
+                                            isFavorite 
+                                                ? "absolute right-4 top-4 z-20 rounded-full bg-white p-2.5 text-red-500 hover:bg-red-50 hover:text-red-600 scale-110" 
+                                                : "absolute right-4 top-4 z-20 rounded-full bg-white/30 p-2.5 text-white transition-colors hover:bg-white hover:text-red-500 backdrop-blur-md"
+                                        }`}
+                                    >
+                                        <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
                                     </button>
 
                                     <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 z-20">
@@ -290,7 +349,7 @@ export default function HomePage() {
                                                 </div>
                                                 <Link href={`/destinations/${topMatch.id}`}>
                                                     <Button className="rounded-full bg-primary hover:bg-primary/90 text-white font-bold px-6">
-                                                        Découvrir
+                                                        Détails
                                                     </Button>
                                                 </Link>
                                             </div>

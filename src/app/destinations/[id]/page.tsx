@@ -16,6 +16,7 @@ import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { User } from "@/models/user";
 import { toast } from "sonner";
+import { addToFavorites, getUserFavorites, removeFromFavorites } from "@/services/favorite-service";
 
 interface HistoryItem {
     id: string;
@@ -31,6 +32,9 @@ const getMonthNames = (months: number[]) => {
 
 export default function DestinationDetailsPage() {
     const route = useRouter();
+
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
 
     const params = useParams();
     const destinationId = params.id as string;
@@ -79,6 +83,22 @@ export default function DestinationDetailsPage() {
            .finally(() => setLoading(false));
     }, [destinationId]);
     
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            const token = localStorage.getItem("destimatch_token");
+            if (!token) return;
+
+            try {
+                const favorites = await getUserFavorites();
+                const isFav = favorites.some((fav: any) => fav.id === destinationId);
+                
+                setIsFavorite(isFav);
+            } catch (err) {
+                console.error("Erreur check favoris", err);
+            }
+        };
+        checkFavoriteStatus();
+    }, [destinationId]);
 
     useEffect(() => {
         const savedUser = localStorage.getItem("destimatch_user");
@@ -97,6 +117,36 @@ export default function DestinationDetailsPage() {
         // TODO: Appeler ton vrai service API ici : await createReview(newReview)...
     };
 
+    const handleToggleFavorite = async () => {
+        const token = localStorage.getItem("destimatch_token");
+        if (!token) {
+            toast.error("Connectez-vous pour ajouter aux favoris !");
+            return;
+        }
+
+        if (favLoading) return;
+
+        const previousState = isFavorite;
+        
+        setIsFavorite(!isFavorite);
+        setFavLoading(true);
+
+        try {
+            if (previousState) {
+                await removeFromFavorites(destinationId);
+                toast.success("Retiré des favoris", { position: "top-center" });
+            } else {
+                await addToFavorites(destinationId);
+                toast.success("Ajouté aux favoris ❤️", { position: "top-center" });
+            }
+        } catch (error) {
+            setIsFavorite(previousState);
+            toast.error("Erreur lors de la mise à jour");
+        } finally {
+            setFavLoading(false);
+        }
+    };
+
     if (loading) 
         return <div className="min-h-screen flex items-center justify-center text-primary animate-pulse">Chargement de votre voyage...</div>;
     if (!destination) 
@@ -112,11 +162,21 @@ export default function DestinationDetailsPage() {
                     </Button>
                 </Link>
 
-                <div className="absolute top-6 right-6 z-20 flex gap-2">
-                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-white/90 hover:bg-white text-red-500 hover:text-red-600 transition-all">
-                        <Heart className="h-5 w-5" />
+                <div className="absolute top-6 right-6 z-20 flex gap-3">
+                    <Button 
+                        variant="secondary" 
+                        size="icon" 
+                        onClick={handleToggleFavorite}
+                        className={`rounded-full shadow-lg transition-all duration-300 ${
+                            isFavorite 
+                                ? "bg-white text-red-500 hover:bg-red-50 hover:text-red-600 scale-110" 
+                                : "bg-white/90 text-slate-700 hover:bg-white hover:text-red-500"
+                        }`}
+                    >
+                        <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
                     </Button>
-                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-white/90 hover:bg-white text-slate-700 transition-all">
+                    
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-white/90 hover:bg-white text-slate-700">
                         <Share2 className="h-5 w-5" />
                     </Button>
                 </div>

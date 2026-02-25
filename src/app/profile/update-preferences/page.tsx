@@ -76,7 +76,7 @@ export default function UpdatePreferences() {
         try {
             await updateUserPreferences(travelStyle!, budgetLevel!, favoriteContinents, tags);
             
-            toast.success("Préférences enregistrées avec succès!");
+            toast.success("Préférences enregistrées avec succès!", { position: "top-center" });
             
             await new Promise(resolve => setTimeout(resolve, 800));
             router.push('/home');
