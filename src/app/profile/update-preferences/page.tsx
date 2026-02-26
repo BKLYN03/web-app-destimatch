@@ -76,7 +76,7 @@ export default function UpdatePreferences() {
         try {
             await updateUserPreferences(travelStyle!, budgetLevel!, favoriteContinents, tags);
             
-            toast.success("Préférences enregistrées avec succès!", { position: "top-center" });
+            toast.success("Préférences enregistrées avec succès !", { position: "top-center" });
             
             await new Promise(resolve => setTimeout(resolve, 800));
             router.push('/home');
@@ -103,12 +103,12 @@ export default function UpdatePreferences() {
                         Apprenons à nous connaître
                     </h1>
                     <p className="text-slate-500 text-lg">
-                        Dis-nous ce que tu aimes, notre algorithme s&apos;occupe du reste.
+                        Dites-nous ce que vous aimez, notre algorithme s&apos;occupe du reste.
                     </p>
                 </div>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-slate-800">Avec qui voyages-tu ?</h2>
+                    <h2 className="text-xl font-semibold text-slate-800">Avec qui voyagez-vous ?</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {TRAVEL_STYLES.map((style) => (
                             <div 
@@ -130,7 +130,7 @@ export default function UpdatePreferences() {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-slate-800">Quel est ton budget moyen ?</h2>
+                    <h2 className="text-xl font-semibold text-slate-800">Quel est votre budget moyen ?</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {BUDGET_LEVELS.map((budget) => (
                             <div 
@@ -152,7 +152,7 @@ export default function UpdatePreferences() {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-slate-800">Où aimerais-tu aller ? <span className="text-sm font-normal text-slate-400">(Plusieurs choix possibles)</span></h2>
+                    <h2 className="text-xl font-semibold text-slate-800">Où aimeriez-vous aller ? <span className="text-sm font-normal text-slate-400">(Plusieurs choix possibles)</span></h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {CONTINENTS.map((continent) => {
                             const isSelected = favoriteContinents.includes(continent.id);
@@ -176,7 +176,7 @@ export default function UpdatePreferences() {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-slate-800">Quelles sont tes envies ?</h2>
+                    <h2 className="text-xl font-semibold text-slate-800">Quelles sont vos envies ?</h2>
                     {isFetchingTags ? (
                         <div className="flex items-center text-slate-500">
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Chargement des envies...

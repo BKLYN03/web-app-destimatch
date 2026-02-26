@@ -275,7 +275,7 @@ export default function ProfilePage() {
                                 <CardContent className="flex-1">
                                     {history.length > 0 ? (
                                         <div className="space-y-3">
-                                            {history.map((item, idx) => (
+                                            {history.slice(0, 3).map((item, idx) => (
                                                 item ? (
                                                     <Link href={`/destinations/${item.id}`} key={item.id || idx}>
                                                         <div className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer group border border-transparent hover:border-slate-100">
@@ -316,6 +316,7 @@ export default function ProfilePage() {
                                 </div>
                             </Card>
                         </div>
+
                     </TabsContent>
 
                     <TabsContent value="wishlist" className="space-y-6 animate-in fade-in-50">

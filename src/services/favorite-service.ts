@@ -3,6 +3,17 @@ import { Favorite } from "@/models/favorite";
 
 const FAV_URL = `${API_URL}/favorites`;
 
+export async function getMostLikedContinents(): Promise<string[]> {
+    const res = await fetch(`${FAV_URL}/most-liked-continents`);
+    
+    if (!res.ok) {
+        console.error("Erreur chargement top continents");
+        return [];
+    }
+    
+    return await res.json();
+}
+
 export async function getUserFavorites(): Promise<Favorite[]> {
     const res = await fetch(FAV_URL, {
         headers: {

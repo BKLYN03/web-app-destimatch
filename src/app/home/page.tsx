@@ -31,8 +31,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Destination } from "@/models/destination";
 import { useRouter } from "next/navigation";
-import { getUserFavorites, removeFromFavorites, addToFavorites } from "@/services/favorite-service";
+import { getUserFavorites, removeFromFavorites, addToFavorites, getMostLikedContinents } from "@/services/favorite-service";
 import { toast } from "sonner";
+import { CONTINENT_DATA, matchContinent2 } from "@/lib/utils";
 
 export default function HomePage() {
 
@@ -47,9 +48,18 @@ export default function HomePage() {
     const [isFavorite, setIsFavorite] = useState(false);
     const [favLoading, setFavLoading] = useState(false);
 
+    const [topContinents, setTopContinents] = useState<string[]>(["Asie", "Europe", "Afrique", "Amérique du Sud", "Amérique du Nord", "Océanie"]);
+
     const topMatch = matchedDestinations.length > 0 ? matchedDestinations[0] : null;
     const otherMatches = matchedDestinations.slice(1, 5);
-    const inspirationMatches = matchedDestinations.slice(5, 9);
+    // const inspirationMatches = matchedDestinations.slice(5, 9);
+
+    useEffect(() => {
+        getMostLikedContinents().then(data => {
+            if (data && data.length > 0)
+                setTopContinents(data);
+        });
+    }, []);
 
     useEffect(() => {
         const checkFavoriteStatus = async () => {
@@ -397,7 +407,55 @@ export default function HomePage() {
                             </div>
                         </section>
 
-                        {inspirationMatches.length > 0 && (
+                        <section className="mb-10">
+                            <div className="flex flex-col md:flex-row justify-between items-end mb-6 gap-4">
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-800">Explorez le monde 🌍</h2>
+                                    <p className="text-sm text-slate-500">
+                                        Découvrez les continents plébiscités par la communauté.
+                                    </p>
+                                </div>
+                                <Button variant="outline" className="hidden md:flex" onClick={() => route.push('/destinations/search')}>
+                                    Voir la carte complète
+                                </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {topContinents.map((continentName, index) => {
+                                    const matchedContinent = matchContinent2(continentName);
+                                    const info = matchedContinent ? CONTINENT_DATA[matchedContinent] : null;
+
+                                    if (!info) return null;
+
+                                    return (
+                                        <Link 
+                                            key={continentName}
+                                            href={`/destinations/search?continent=${matchedContinent}`} 
+                                            className={`group relative h-[400px] rounded-3xl overflow-hidden cursor-pointer shadow-lg`}
+                                        >
+                                            <Image
+                                                src={`/assets/continents/${continentName}.jpg`}
+                                                alt={continentName}
+                                                fill
+                                                className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                            <div className="absolute bottom-0 left-0 p-8 text-white">
+                                                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 inline-block">
+                                                    {info.subtitle}
+                                                </span>
+                                                <h3 className="text-3xl font-bold mb-1">{matchContinent2(continentName)}</h3>
+                                                <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+                                                    <span>{info.desc}</span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </section>
+
+                        {/* {inspirationMatches.length > 0 && (
                             <section className="mb-10">
                                 <div className="flex items-end justify-between mb-6">
                                     <div>
@@ -418,7 +476,7 @@ export default function HomePage() {
                                     ))}
                                 </div>
                             </section>
-                        )}
+                        )} */}
                     </>
                 )}
             </main>

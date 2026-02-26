@@ -330,8 +330,8 @@ export default function DestinationDetailsPage() {
                                         />
                                     </div>
                                     <Textarea 
-                                        placeholder="Qu'avez-vous aimé ? Les paysages, la nourriture, l'ambiance ?" 
-                                        className="min-h-[120px] resize-none focus-visible:ring-primary"
+                                        placeholder="Racontez-nous ce que vous avez le plus aimé (ou détesté) ! Qu'avez-vous aimé ? Les paysages, la nourriture, l'ambiance ?" 
+                                        className="min-h-[120px] resize-none break-all focus-visible:ring-primary"
                                         value={reviewContent}
                                         onChange={(e) => setReviewContent(e.target.value)}
                                     />
